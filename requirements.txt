@@ -1,0 +1,2 @@
+prettyconf==1.2.3
+requests==2.11.1
