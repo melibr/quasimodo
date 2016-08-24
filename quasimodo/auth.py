@@ -57,3 +57,29 @@ class AuthorizationCode:
             return json.loads(self.r.text)
 
         return {}
+
+
+class RefreshToken:
+    headers = {'Accept': 'application/json', 'Content-type': 'application/json'}
+
+    def __init__(self, auth_conf, refresh_token, auth_url=AUTHENTICATION_URL):
+        self.auth_conf = auth_conf
+        self.refresh_token = refresh_token
+        self.auth_url = auth_url
+
+    @property
+    def credentials(self):
+        params = {'grant_type': 'refresh_token',
+                  'refresh_token': self.refresh_token,
+                  'client_id': self.auth_conf.app_id,
+                  'client_secret': self.auth_conf.secret_key}
+
+        self.r = requests.post(self.auth_url,
+                                      params=urlencode(params), headers=self.headers)
+
+        if self.r.status_code == 200:
+            return json.loads(self.r.text)
+        else:
+            print(self.r.text)
+
+        return {}

@@ -1,4 +1,5 @@
-from auth import AuthConf, AuthURL, AuthorizationCode
+from auth import (AuthConf, AuthURL,
+                  AuthorizationCode, RefreshToken)
 
 
 class Quasimodo:
@@ -13,24 +14,14 @@ class Quasimodo:
         self._credentials = authorization_code.credentials
         return self._credentials
 
+    def refresh(self):
+        refresh_token = RefreshToken(self._auth_conf, self.refresh_token)
+        self._credentials = refresh_token.credentials
+        return self._credentials
+
     @property
     def access_token(self):
         return self._credentials.get('access_token')
-
-    @property
-    def expires_in(self):
-        expires = int(self._credentials.get('expires_in', 0))
-
-        if expires > 0:
-            return {
-                'seconds': expires,
-                'minutes': expires / 60,
-                'hours': (expires / 60) / 60,
-            }
-
-    @property
-    def user_id(self):
-        return self._credentials.get('user_id')
 
     @property
     def refresh_token(self):
