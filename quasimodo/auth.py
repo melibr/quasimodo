@@ -2,8 +2,10 @@ from urllib.parse import urlencode
 import json
 import requests
 
-AUTHORIZATION_URL = 'http://auth.mercadolibre.com/authorization'
-AUTHENTICATION_URL = 'https://api.mercadolibre.com/oauth/token'
+AUTHORIZATION_ENDPOINT = 'http://auth.mercadolibre.com/authorization'
+AUTHENTICATION_ENDPOINT= 'https://api.mercadolibre.com/oauth/token'
+
+HEADERS = {'Accept': 'application/json', 'Content-type': 'application/json'}
 
 
 class AuthConf:
@@ -14,33 +16,31 @@ class AuthConf:
 
 class AuthURL:
     def __init__(self, auth_conf, redirect_uri=None,
-                 response_code='code', auth_url=AUTHORIZATION_URL):
+                 response_type='code', endpoint=AUTHORIZATION_ENDPOINT):
         self.auth_conf = auth_conf
-        self.auth_url = auth_url
+        self.endpoint = endpoint
         self.redirect_uri = redirect_uri
-        self.response_code = response_code
+        self.response_type = response_type
 
     def __repr__(self):
-        self.params = {'client_id': self.auth_conf.app_id, 'response_type': self.response_code}
+        self.params = {'client_id': self.auth_conf.app_id, 'response_type': self.response_type}
 
         if self.redirect_uri:
             self.params.update({'redirect_uri': self.redirect_uri})
 
         params = urlencode(self.params)
 
-        self.url = '{}?{}'.format(self.auth_url, params)
+        self.url = '{}?{}'.format(self.endpoint, params)
 
         return self.url
 
 
 class AuthorizationCode:
-    headers = {'Accept': 'application/json', 'Content-type': 'application/json'}
-
-    def __init__(self, auth_conf, code, redirect_uri, auth_url=AUTHENTICATION_URL):
+    def __init__(self, auth_conf, code, redirect_uri, endpoint=AUTHENTICATION_ENDPOINT):
         self.auth_conf = auth_conf
         self.code = code
         self.redirect_uri = redirect_uri
-        self.auth_url = auth_url
+        self.endpoint = endpoint
 
     @property
     def credentials(self):
@@ -50,22 +50,18 @@ class AuthorizationCode:
                   'client_secret': self.auth_conf.secret_key,
                   'redirect_uri': self.redirect_uri}
 
-        self.r = requests.post(self.auth_url,
-                                      params=urlencode(params), headers=self.headers)
+        self.r = requests.post(self.endpoint,
+                                      params=urlencode(params), headers=HEADERS)
 
         if self.r.status_code == 200:
             return json.loads(self.r.text)
 
-        return {}
-
 
 class RefreshToken:
-    headers = {'Accept': 'application/json', 'Content-type': 'application/json'}
-
-    def __init__(self, auth_conf, refresh_token, auth_url=AUTHENTICATION_URL):
+    def __init__(self, auth_conf, refresh_token, endpoint=AUTHENTICATION_ENDPOINT):
         self.auth_conf = auth_conf
         self.refresh_token = refresh_token
-        self.auth_url = auth_url
+        self.endpoint = endpoint
 
     @property
     def credentials(self):
@@ -74,12 +70,8 @@ class RefreshToken:
                   'client_id': self.auth_conf.app_id,
                   'client_secret': self.auth_conf.secret_key}
 
-        self.r = requests.post(self.auth_url,
-                                      params=urlencode(params), headers=self.headers)
+        self.r = requests.post(self.endpoint,
+                                      params=urlencode(params), headers=HEADERS)
 
         if self.r.status_code == 200:
             return json.loads(self.r.text)
-        else:
-            print(self.r.text)
-
-        return {}
