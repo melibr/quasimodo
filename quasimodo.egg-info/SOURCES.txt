@@ -1,0 +1,9 @@
+quasimodo/__init__.py
+quasimodo/auth.py
+quasimodo/quasimodo.py
+quasimodo.egg-info/PKG-INFO
+quasimodo.egg-info/SOURCES.txt
+quasimodo.egg-info/dependency_links.txt
+quasimodo.egg-info/top_level.txt
+tests/__init__.py
+tests/test_auth.py

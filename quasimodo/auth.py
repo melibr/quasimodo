@@ -15,22 +15,14 @@ class AuthConf:
 
 
 class AuthURL:
-    def __init__(self, auth_conf, redirect_uri=None,
-                 response_type='code', endpoint=AUTHORIZATION_ENDPOINT):
+    def __init__(self, auth_conf, response_type='code', endpoint=AUTHORIZATION_ENDPOINT):
         self.auth_conf = auth_conf
         self.endpoint = endpoint
-        self.redirect_uri = redirect_uri
         self.response_type = response_type
 
     def __repr__(self):
         self.params = {'client_id': self.auth_conf.app_id, 'response_type': self.response_type}
-
-        if self.redirect_uri:
-            self.params.update({'redirect_uri': self.redirect_uri})
-
-        params = urlencode(self.params)
-
-        self.url = '{}?{}'.format(self.endpoint, params)
+        self.url = '{}?{}'.format(self.endpoint, urlencode(self.params))
 
         return self.url
 
