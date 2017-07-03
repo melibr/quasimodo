@@ -45,6 +45,8 @@ class AuthorizationCode:
         self.r = requests.post(self.endpoint,
                                       params=urlencode(params), headers=HEADERS)
 
+        print(self.r.text)
+
         if self.r.status_code == 200:
             return json.loads(self.r.text)
 

@@ -62,11 +62,11 @@ class Quasimodo:
         user = self.me
         identifier = user.get('id')
         data = self.request('GET', 'users/{identifier}/items/search'.format(identifier=identifier))
-        return data['results']
+        return data.get('results')
 
     def get_product_description(self, identifier):
         data = self.request('GET', 'items/{identifier}/description'.format(identifier=identifier))
-        return data['text']
+        return data.get('text')
 
     def update_product_description(self, identifier, description):
         self.request('PUT', 'items/{identifier}/description'.format(identifier=identifier), json={'text': description})
