@@ -1,6 +1,7 @@
 import requests
 
 from datetime import datetime
+from urllib.parse import urlencode
 
 from .auth import (AuthConf, AuthURL,
                   AuthorizationCode, RefreshToken)
@@ -11,7 +12,7 @@ TOKEN_SESSION_NAME = 'quasimodo_token'
 AUTHORIZED_DATETIME_SESSION_NAME = 'quasimodo_authorized_datetime'
 EXPIRES_IN_SESSION_NAME = 'quasimodo_expires_in'
 
-API_URI = 'https://api.mercadolibre.com/{endpoint}?access_token={access_token}';
+API_URI = 'https://api.mercadolibre.com/{endpoint}';
 
 
 class Quasimodo:
@@ -44,8 +45,10 @@ class Quasimodo:
 
         return self._credentials
 
-    def request(self, method, endpoint, **kwargs):
-        return requests.request(method, API_URI.format(endpoint=endpoint, access_token=self.token), **kwargs).json()
+    def request(self, method, endpoint, params={}, **kwargs):
+        params = {**{'access_token': self._token}, **params}
+        qs = urlencode(params)
+        return requests.request(method, API_URI.format(endpoint=endpoint + '?' + qs, access_token=self.token), **kwargs).json()
 
     def set_token(self, token):
         self._token = token
@@ -63,12 +66,18 @@ class Quasimodo:
     def me(self):
         return self.request('GET', 'users/me')
 
-    @property
-    def products(self):
+    def set_offset(self, offset):
+        self._offset = offset
+
+    def get_products(self, params={}):
         user = self.me
         identifier = user.get('id')
-        data = self.request('GET', 'users/{identifier}/items/search'.format(identifier=identifier))
+        data = self.request('GET', 'users/{identifier}/items/search'.format(identifier=identifier), params)
+
         self.paging = data.get('paging', {})
+        self.total = self.paging.get('total', 0)
+        self.limit = self.paging.get('limit', 0)
+        
         return data.get('results')
 
     def get_product_description(self, identifier):
