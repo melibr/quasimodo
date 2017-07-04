@@ -19,6 +19,8 @@ class Quasimodo:
         self._auth_conf = AuthConf(app_id, secret_key)
         self._session = session
         self._token = None
+        self._offset = 0
+        self.paging = {}
 
     def get_auth_url(self):
         return AuthURL(self._auth_conf)
@@ -49,6 +51,10 @@ class Quasimodo:
         self._token = token
         return self._token
 
+    def set_offset(self, offset):
+        self._offset = offset
+        return self._offset
+
     @property
     def token(self):
         return self._token or self._session.get(TOKEN_SESSION_NAME)
@@ -62,6 +68,7 @@ class Quasimodo:
         user = self.me
         identifier = user.get('id')
         data = self.request('GET', 'users/{identifier}/items/search'.format(identifier=identifier))
+        self.paging = data.get('paging', {})
         return data.get('results')
 
     def get_product_description(self, identifier):
