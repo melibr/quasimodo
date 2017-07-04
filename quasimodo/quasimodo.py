@@ -46,8 +46,9 @@ class Quasimodo:
         return self._credentials
 
     def request(self, method, endpoint, params={}, **kwargs):
-        params = {**{'access_token': self._token}, **params}
-        qs = urlencode(params)
+        p = {'access_token': self._token}
+        p.update(params)
+        qs = urlencode(p)
         return requests.request(method, API_URI.format(endpoint=endpoint + '?' + qs, access_token=self.token), **kwargs).json()
 
     def set_token(self, token):
