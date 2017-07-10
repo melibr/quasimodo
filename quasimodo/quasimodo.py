@@ -83,7 +83,7 @@ class Quasimodo:
 
     def get_product_description(self, identifier):
         data = self.request('GET', 'items/{identifier}/description'.format(identifier=identifier))
-        return data.get('text')
+        return data
 
-    def update_product_description(self, identifier, description):
-        self.request('PUT', 'items/{identifier}/description'.format(identifier=identifier), json={'text': description})
+    def update_product_description(self, identifier, description, plain_text):
+        self.request('PUT', 'items/{identifier}/description'.format(identifier=identifier), json={'text': description, 'plain_text': plain_text})
